@@ -1,0 +1,6 @@
+com\foodbox\repository\ItemRepository.class
+com\foodbox\FoodboxApplication.class
+com\foodbox\model\Item.class
+com\foodbox\service\impl\ItemServiceImpl.class
+com\foodbox\controller\ItemController.class
+com\foodbox\service\ItemService.class
