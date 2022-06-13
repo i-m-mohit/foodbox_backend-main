@@ -1,8 +1,9 @@
-node(){
+pipeline{
+    agent any
     stages {
         stage("git checkout") {
             steps {
-            url: "https://github.com/i-m-mohit/foodbox_backend-main.git"
+            git "https://github.com/i-m-mohit/foodbox_backend-main.git"
         }
         }
         stage("clean") {
@@ -22,17 +23,25 @@ node(){
                     archiveArtifacts artifacts: 'target/foodbox.war'
                 }
             }
+        
         }
+        
+         stage('Stash changes') {
+            steps {
+        stash allowEmpty: true, includes: 'target/foodbox.war', name: 'buildArtifacts'
+        }
+         }
+     
     }
-       node('awsnode') {
-           echo 'Unstash'
+}
+      node('awsnode') {
+          echo 'Unstash'
            unstash 'buildArtifacts'
-           echo 'Artifacts copied'
-           sh '/opt/apache-tomcat-9.0.64/bin/shutdown.sh'
-           echo 'Copy'
-           sh 'yes | sudo cp -R foodbox.war /opt/apache-tomcat-9.0.64/webapps/ROOT'
-           sh '/opt/apache-tomcat-9.0.64/bin/startup.sh'
-           echo 'Copy completed'
-       }
-    }
-
+          echo 'Artifacts copied'
+        //   sh 'sudo /opt/apache-tomcat-9.0.64/bin/shutdown.sh'
+          echo 'Copy'
+          sh 'yes | sudo cp -R target/foodbox.war /home/ec2-user/project'
+          
+           sh 'sudo nohup java -jar /home/ec2-user/project/foodbox.war > log.log 2>&1 &'
+          echo 'Copy completed'
+      }
